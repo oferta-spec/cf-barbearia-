@@ -1883,6 +1883,34 @@ function timeToMinutes(time){
 
 
 /* =========================================================
+   INDISPONIBILIDADE DOS PROFISSIONAIS
+   Alisson: 11:00 às 13:00
+   Caio Mendes: 12:00 às 14:00
+========================================================= */
+
+const STAFF_UNAVAILABLE_PERIODS = {
+  1: [{ start: "11:00", end: "13:00" }],
+  2: [{ start: "12:00", end: "14:00" }]
+};
+
+function isStaffUnavailable(time, staffId, serviceDuration = 20){
+
+  const periods = STAFF_UNAVAILABLE_PERIODS[Number(staffId)] || [];
+  const appointmentStart = timeToMinutes(time);
+  // Bloqueia exatamente os horários de início dentro do intervalo informado.
+  // Não antecipa o bloqueio por causa da duração do serviço.
+  return periods.some(period => {
+    const unavailableStart = timeToMinutes(period.start);
+    const unavailableEnd = timeToMinutes(period.end);
+
+    return appointmentStart >= unavailableStart &&
+           appointmentStart < unavailableEnd;
+  });
+
+}
+
+
+/* =========================================================
    SERVIÇOS
 ========================================================= */
 
@@ -2220,22 +2248,36 @@ function closeBooking(){
 
 function renderTimes(){
 
+  const staffId = Number(
+    document.getElementById("staffSelect").value
+  );
+
+  const serviceId = Number(
+    document.getElementById("serviceSelect").value
+  );
+
+  const service = SERVICES.find(item => item.id === serviceId);
+  const serviceDuration = service ? service.duration : 20;
+
   document.getElementById(
     "timeList"
   ).innerHTML =
 
     AVAILABLE_TIMES.map(time => {
 
-      const occupied =
-        occupiedTimes.includes(time);
-
+      const occupied = occupiedTimes.includes(time);
+      const unavailable = staffId && isStaffUnavailable(
+        time, staffId, serviceDuration
+      );
+      const disabled = occupied || unavailable;
 
       return `
 
         <button
           type="button"
           class="time"
-          ${occupied ? "disabled" : ""}
+          ${disabled ? "disabled" : ""}
+          title="${unavailable ? "Profissional indisponível neste horário" : ""}"
           onclick="selectTime('${time}',this)"
         >
 
@@ -2603,6 +2645,22 @@ async function confirmBooking(){
   }
 
 
+  // Validação final do intervalo indisponível antes de salvar no banco.
+  if(isStaffUnavailable(time, staffId, service.duration)){
+
+    showBookingMessage(
+      "Este profissional não está disponível nesse horário. Escolha outro horário ou selecione o outro profissional.",
+      "error"
+    );
+
+    selectedTime = null;
+    renderTimes();
+    updateConfirmButton();
+    return;
+
+  }
+
+
   button.disabled = true;
 
   button.textContent =
@@ -2961,7 +3019,14 @@ document
   .getElementById("serviceSelect")
   .addEventListener(
     "change",
-    updateConfirmButton
+    function(){
+
+      // Recalcula os horários conforme a duração do serviço escolhido.
+      selectedTime = null;
+      renderTimes();
+      updateConfirmButton();
+
+    }
   );
 
 
