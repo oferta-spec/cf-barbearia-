@@ -1,0 +1,3063 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Agendamento online | CF BARBEARIA</title>
+
+<!-- =========================================================
+     SUPABASE
+========================================================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+/* =========================================================
+   CF BARBEARIA — DESIGN PREMIUM
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+:root{
+  --bg:#f5f5f3;
+  --surface:#ffffff;
+  --surface-2:#fafaf9;
+  --text:#171717;
+  --text-soft:#555;
+  --muted:#858585;
+  --line:#e7e5e1;
+  --black:#111111;
+  --black-2:#242424;
+  --gold:#c49a55;
+  --gold-light:#ead7b6;
+  --shadow:0 10px 35px rgba(0,0,0,.07);
+  --shadow-hover:0 18px 45px rgba(0,0,0,.11);
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:75px;
+}
+
+body{
+  font-family:"DM Sans",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+
+button,input,select{
+  font:inherit;
+}
+
+button{
+  -webkit-tap-highlight-color:transparent;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.container{
+  width:min(100% - 36px,1040px);
+  margin:auto;
+}
+
+/* =========================================================
+   CAPA
+========================================================= */
+
+.cover{
+  height:310px;
+  position:relative;
+  overflow:hidden;
+
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.25) 100%),
+    url("assets/logo.jpg") center/cover no-repeat;
+
+  background-color:#292929;
+}
+
+.cover::after{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(0,0,0,.18) 100%
+  );
+}
+
+/* =========================================================
+   PERFIL
+========================================================= */
+
+.profile{
+  position:relative;
+  margin-top:-72px;
+  padding:0 34px 30px;
+  background:var(--surface);
+  border-radius:24px 24px 0 0;
+  box-shadow:0 -4px 25px rgba(0,0,0,.025);
+  z-index:2;
+}
+
+.profile-logo{
+  width:126px;
+  height:126px;
+  display:block;
+  object-fit:cover;
+  border-radius:50%;
+  background:#fff;
+  border:6px solid #fff;
+
+  box-shadow:
+    0 5px 25px rgba(0,0,0,.15),
+    0 0 0 1px rgba(0,0,0,.04);
+
+  margin-top:-63px;
+}
+
+.profile h1{
+  margin-top:18px;
+
+  font-family:"Playfair Display",Georgia,serif;
+
+  font-size:34px;
+  line-height:1.1;
+  letter-spacing:-.5px;
+  font-weight:700;
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:10px;
+  color:#777;
+  font-size:13px;
+  font-weight:600;
+}
+
+.status::first-letter{
+  color:#999;
+}
+
+.address{
+  margin-top:9px;
+  color:var(--text-soft);
+  font-size:14px;
+}
+
+.top-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.top-actions button{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+
+  padding:9px 13px;
+
+  border:1px solid var(--line);
+  border-radius:9px;
+
+  background:#fff;
+  color:#333;
+
+  cursor:pointer;
+
+  font-size:13px;
+  font-weight:600;
+
+  transition:.2s ease;
+}
+
+.top-actions button:hover{
+  background:#f6f5f3;
+  border-color:#d8d5cf;
+  transform:translateY(-1px);
+}
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
+
+.nav{
+  position:sticky;
+  top:0;
+  z-index:20;
+
+  background:rgba(255,255,255,.94);
+
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+
+  border-top:1px solid rgba(0,0,0,.025);
+  border-bottom:1px solid var(--line);
+}
+
+.nav-inner{
+  display:flex;
+  gap:36px;
+
+  overflow-x:auto;
+
+  scrollbar-width:none;
+}
+
+.nav-inner::-webkit-scrollbar{
+  display:none;
+}
+
+.nav button{
+  position:relative;
+
+  white-space:nowrap;
+
+  padding:17px 2px 15px;
+
+  border:0;
+  background:none;
+
+  color:#888;
+
+  cursor:pointer;
+
+  font-size:13px;
+  font-weight:700;
+
+  transition:.2s;
+}
+
+.nav button:hover{
+  color:#222;
+}
+
+.nav button.active{
+  color:#111;
+}
+
+.nav button.active::after{
+  content:"";
+
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:-1px;
+
+  height:2px;
+
+  border-radius:3px 3px 0 0;
+
+  background:var(--gold);
+}
+
+/* =========================================================
+   SEÇÕES
+========================================================= */
+
+.section{
+  padding:46px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.section h2{
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  margin-bottom:25px;
+
+  font-family:"Playfair Display",Georgia,serif;
+
+  font-size:27px;
+  line-height:1.2;
+}
+
+.section h2::after{
+  content:"";
+
+  display:block;
+
+  width:34px;
+  height:2px;
+
+  background:var(--gold);
+}
+
+/* =========================================================
+   SERVIÇOS
+========================================================= */
+
+.service{
+  position:relative;
+
+  padding:21px 22px;
+  margin-bottom:13px;
+
+  background:var(--surface);
+
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+
+  box-shadow:0 2px 5px rgba(0,0,0,.015);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+}
+
+.service:hover{
+  transform:translateY(-2px);
+
+  border-color:#d9d4cc;
+
+  box-shadow:var(--shadow);
+}
+
+.service-main{
+  display:flex;
+
+  justify-content:space-between;
+  align-items:flex-start;
+
+  gap:20px;
+}
+
+.service-name{
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:.1px;
+}
+
+.price{
+  white-space:nowrap;
+
+  font-size:15px;
+  font-weight:800;
+
+  color:#222;
+}
+
+.service-details{
+  max-width:650px;
+
+  margin-top:8px;
+
+  color:var(--muted);
+
+  font-size:13px;
+  line-height:1.6;
+
+  display:none;
+}
+
+.service.open .service-details{
+  display:block;
+
+  animation:fadeDown .2s ease;
+}
+
+@keyframes fadeDown{
+
+  from{
+    opacity:0;
+    transform:translateY(-4px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+}
+
+.service-footer{
+  display:flex;
+
+  align-items:center;
+  justify-content:space-between;
+
+  gap:15px;
+
+  margin-top:17px;
+}
+
+.details-btn{
+  border:0;
+
+  background:none;
+
+  color:#777;
+
+  cursor:pointer;
+
+  font-size:12px;
+  font-weight:700;
+
+  padding:5px 0;
+}
+
+.details-btn:hover{
+  color:#111;
+}
+
+.reserve{
+  min-width:104px;
+
+  border:0;
+  border-radius:9px;
+
+  padding:10px 18px;
+
+  background:var(--black);
+  color:#fff;
+
+  cursor:pointer;
+
+  font-size:13px;
+  font-weight:700;
+
+  transition:.22s ease;
+
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+
+.reserve:hover{
+  background:#292929;
+
+  transform:translateY(-1px);
+
+  box-shadow:0 7px 18px rgba(0,0,0,.16);
+}
+
+.reserve:active{
+  transform:translateY(0);
+}
+
+.more{
+  width:100%;
+
+  min-height:48px;
+
+  margin-top:4px;
+
+  border:1px solid #dcd9d4;
+  border-radius:11px;
+
+  background:var(--surface);
+
+  color:#222;
+
+  cursor:pointer;
+
+  font-size:13px;
+  font-weight:700;
+
+  transition:.2s;
+}
+
+.more:hover{
+  border-color:#bdb8af;
+  background:#faf9f7;
+}
+
+/* =========================================================
+   EQUIPE
+========================================================= */
+
+.team-grid{
+  display:grid;
+
+  grid-template-columns:repeat(2,1fr);
+
+  gap:17px;
+}
+
+.team-card{
+  position:relative;
+
+  padding:23px;
+
+  background:var(--surface);
+
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+
+  box-shadow:0 2px 5px rgba(0,0,0,.015);
+
+  transition:.25s ease;
+}
+
+.team-card:hover{
+  transform:translateY(-3px);
+
+  box-shadow:var(--shadow-hover);
+
+  border-color:#d9d4cc;
+}
+
+.team-avatar{
+  width:74px;
+  height:74px;
+
+  object-fit:cover;
+
+  border-radius:50%;
+
+  background:#eee;
+
+  border:3px solid #fff;
+
+  box-shadow:0 3px 12px rgba(0,0,0,.12);
+
+  margin-bottom:15px;
+}
+
+.team-card h3{
+  font-family:"Playfair Display",Georgia,serif;
+  font-size:18px;
+}
+
+.team-card p{
+  margin:4px 0 17px;
+
+  color:var(--muted);
+
+  font-size:12px;
+}
+
+.team-card .reserve{
+  width:100%;
+}
+
+/* =========================================================
+   SOBRE
+========================================================= */
+
+.about-text{
+  max-width:720px;
+
+  margin-bottom:30px;
+
+  color:#555;
+
+  font-size:15px;
+  line-height:1.8;
+}
+
+.info-block{
+  padding:19px 0;
+
+  border-top:1px solid var(--line);
+}
+
+.info-block h3{
+  margin-bottom:6px;
+
+  font-size:13px;
+  font-weight:800;
+}
+
+.info-block p{
+  color:#666;
+
+  font-size:14px;
+}
+
+.hours{
+  display:grid;
+
+  gap:8px;
+
+  max-width:500px;
+
+  margin-top:10px;
+}
+
+.hour{
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:20px;
+
+  padding:7px 0;
+
+  color:#555;
+
+  font-size:13px;
+}
+
+.hour span:last-child{
+  font-weight:650;
+  color:#222;
+}
+
+.hour.closed span:last-child{
+  color:#999;
+  font-weight:500;
+}
+
+/* =========================================================
+   RODAPÉ
+========================================================= */
+
+footer{
+  padding:42px 0;
+
+  color:#999;
+
+  font-size:11px;
+
+  text-align:center;
+
+  letter-spacing:.3px;
+}
+
+footer div:first-child{
+  margin-bottom:4px;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+
+  display:none;
+
+  align-items:flex-end;
+  justify-content:center;
+
+  z-index:100;
+
+  padding:0;
+
+  background:rgba(0,0,0,.58);
+
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+
+.modal-backdrop.show{
+  display:flex;
+
+  animation:modalBg .2s ease;
+}
+
+@keyframes modalBg{
+
+  from{
+    opacity:0;
+  }
+
+  to{
+    opacity:1;
+  }
+
+}
+
+.modal{
+  width:min(100%,590px);
+
+  max-height:92vh;
+
+  overflow:auto;
+
+  padding:30px;
+
+  background:#fff;
+
+  border-radius:23px 23px 0 0;
+
+  box-shadow:0 -15px 50px rgba(0,0,0,.2);
+
+  animation:modalUp .25s ease;
+}
+
+@keyframes modalUp{
+
+  from{
+    transform:translateY(25px);
+    opacity:.7;
+  }
+
+  to{
+    transform:translateY(0);
+    opacity:1;
+  }
+
+}
+
+.modal-header{
+  display:flex;
+
+  align-items:center;
+  justify-content:space-between;
+
+  gap:20px;
+
+  margin-bottom:25px;
+}
+
+.modal-header h2{
+  font-family:"Playfair Display",Georgia,serif;
+
+  font-size:24px;
+}
+
+.close{
+  display:grid;
+
+  place-items:center;
+
+  width:36px;
+  height:36px;
+
+  border:1px solid var(--line);
+
+  border-radius:50%;
+
+  background:#f7f7f5;
+
+  color:#444;
+
+  cursor:pointer;
+
+  font-size:20px;
+
+  line-height:1;
+
+  transition:.2s;
+}
+
+.close:hover{
+  background:#111;
+  color:#fff;
+}
+
+.field{
+  margin-bottom:18px;
+}
+
+.field label{
+  display:block;
+
+  margin-bottom:7px;
+
+  color:#333;
+
+  font-size:12px;
+
+  font-weight:800;
+}
+
+.field select,
+.field input{
+  width:100%;
+
+  height:47px;
+
+  padding:0 13px;
+
+  border:1px solid #ddd9d2;
+
+  border-radius:10px;
+
+  outline:none;
+
+  background:#fff;
+
+  color:#222;
+
+  font-size:13px;
+
+  transition:.2s;
+}
+
+.field select:focus,
+.field input:focus{
+  border-color:#999;
+
+  box-shadow:0 0 0 3px rgba(196,154,85,.10);
+}
+
+.times{
+  display:grid;
+
+  grid-template-columns:repeat(4,1fr);
+
+  gap:8px;
+}
+
+.time{
+  padding:10px 4px;
+
+  border:1px solid #dedbd6;
+
+  border-radius:8px;
+
+  background:#fff;
+
+  color:#333;
+
+  cursor:pointer;
+
+  font-size:12px;
+
+  font-weight:650;
+
+  transition:.18s;
+}
+
+.time:hover{
+  border-color:#aaa;
+  background:#f8f8f7;
+}
+
+.time.selected{
+  background:#111;
+
+  border-color:#111;
+
+  color:#fff;
+}
+
+.time:disabled{
+  background:#eeeeec;
+
+  border-color:#e1dfda;
+
+  color:#aaa;
+
+  cursor:not-allowed;
+
+  text-decoration:line-through;
+}
+
+.confirm{
+  width:100%;
+
+  height:49px;
+
+  margin-top:4px;
+
+  border:0;
+
+  border-radius:10px;
+
+  background:#111;
+
+  color:#fff;
+
+  cursor:pointer;
+
+  font-size:13px;
+
+  font-weight:800;
+
+  transition:.2s;
+}
+
+.confirm:not(:disabled):hover{
+  background:#292929;
+
+  transform:translateY(-1px);
+}
+
+.confirm:disabled{
+  opacity:.4;
+
+  cursor:not-allowed;
+}
+
+.success{
+  display:none;
+
+  padding:22px 5px;
+
+  text-align:center;
+}
+
+.success.show{
+  display:block;
+}
+
+.success-icon{
+  display:grid;
+
+  place-items:center;
+
+  width:64px;
+  height:64px;
+
+  margin:0 auto 17px;
+
+  border-radius:50%;
+
+  background:#111;
+
+  color:#fff;
+
+  font-size:26px;
+
+  box-shadow:0 7px 20px rgba(0,0,0,.16);
+}
+
+/* =========================================================
+   AVISO
+========================================================= */
+
+.booking-message{
+  display:none;
+
+  margin-bottom:18px;
+
+  padding:12px 14px;
+
+  border-radius:10px;
+
+  font-size:12px;
+
+  line-height:1.5;
+}
+
+.booking-message.show{
+  display:block;
+}
+
+.booking-message.error{
+  background:#f9eeee;
+  border:1px solid #ead0d0;
+  color:#8b3030;
+}
+
+.booking-message.info{
+  background:#f7f4ed;
+  border:1px solid #e6dcc8;
+  color:#725b2e;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:#f1f1ef;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#c9c6c0;
+
+  border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:#aaa69f;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:650px){
+
+  .container{
+    width:min(100% - 24px,1040px);
+  }
+
+  .cover{
+    height:225px;
+  }
+
+  .profile{
+    margin-top:-58px;
+
+    padding:0 20px 25px;
+
+    border-radius:20px 20px 0 0;
+  }
+
+  .profile-logo{
+    width:105px;
+    height:105px;
+
+    margin-top:-52px;
+
+    border-width:5px;
+  }
+
+  .profile h1{
+    margin-top:15px;
+
+    font-size:27px;
+  }
+
+  .address{
+    max-width:330px;
+
+    font-size:13px;
+  }
+
+  .top-actions{
+    gap:8px;
+  }
+
+  .top-actions button{
+    padding:8px 11px;
+
+    font-size:12px;
+  }
+
+  .nav-inner{
+    gap:25px;
+  }
+
+  .nav button{
+    padding-top:15px;
+    padding-bottom:13px;
+  }
+
+  .section{
+    padding:35px 0;
+  }
+
+  .section h2{
+    font-size:24px;
+
+    margin-bottom:20px;
+  }
+
+  .service{
+    padding:18px;
+  }
+
+  .service-name,
+  .price{
+    font-size:14px;
+  }
+
+  .service-footer{
+    margin-top:14px;
+  }
+
+  .reserve{
+    min-width:92px;
+
+    padding:9px 14px;
+  }
+
+  .team-grid{
+    grid-template-columns:1fr;
+  }
+
+  .team-card{
+    padding:20px;
+  }
+
+  .modal{
+    padding:24px 18px;
+
+    border-radius:20px 20px 0 0;
+  }
+
+  .times{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+}
+
+@media(max-width:390px){
+
+  .profile h1{
+    font-size:24px;
+  }
+
+  .top-actions{
+    flex-direction:column;
+
+    align-items:flex-start;
+  }
+
+  .top-actions button{
+    width:100%;
+
+    justify-content:center;
+  }
+
+  .service-main{
+    gap:10px;
+  }
+
+  .service-footer{
+    align-items:flex-end;
+  }
+
+  .details-btn{
+    font-size:11px;
+  }
+
+  .reserve{
+    min-width:88px;
+
+    padding:9px 12px;
+
+    font-size:12px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="cover"></div>
+
+  <div class="container">
+
+    <div class="profile">
+
+      <img
+        id="businessLogo"
+        class="profile-logo"
+        src="assets/foto.jpg"
+        alt="CF BARBEARIA"
+      >
+
+      <h1 id="businessName">CF BARBEARIA</h1>
+
+      <div class="status" id="businessStatus">
+        ● Fechado
+      </div>
+
+      <div class="address" id="businessAddress">
+        JOÃO ANTÔNIO, 410, CENTRO, MIRABELA
+      </div>
+
+      <div class="top-actions">
+
+        <button type="button" onclick="openDirections()">
+          📍 <span>Obter direções</span>
+        </button>
+
+        <button type="button" onclick="sharePage()">
+          ↗ <span>Compartilhar</span>
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</header>
+
+<nav class="nav">
+
+  <div class="container nav-inner">
+
+    <button
+      class="active"
+      onclick="goTo('servicos',this)"
+    >
+      Serviços
+    </button>
+
+    <button
+      onclick="goTo('equipe',this)"
+    >
+      Membros da equipe
+    </button>
+
+    <button
+      onclick="goTo('sobre',this)"
+    >
+      Sobre nós
+    </button>
+
+  </div>
+
+</nav>
+
+<main class="container">
+
+<!-- =========================================================
+     SERVIÇOS
+========================================================= -->
+
+<section id="servicos" class="section">
+
+  <h2>Serviços</h2>
+
+  <div id="servicesList">
+
+  </div>
+
+  <button
+    class="more"
+    id="moreServices"
+    onclick="showAllServices()"
+  >
+    Mostrar todos os serviços
+  </button>
+
+</section>
+
+
+<!-- =========================================================
+     EQUIPE
+========================================================= -->
+
+<section id="equipe" class="section">
+
+  <h2>Membros da equipe</h2>
+
+  <div
+    class="team-grid"
+    id="teamList"
+  >
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     SOBRE
+========================================================= -->
+
+<section id="sobre" class="section">
+
+  <h2>Sobre nós</h2>
+
+  <p
+    class="about-text"
+    id="businessDescription"
+  >
+    AQUI CABELO E BARBA É COISA SERIA!!
+  </p>
+
+  <div class="info-block">
+
+    <h3>📍 Endereço</h3>
+
+    <p id="aboutAddress">
+      JOÃO ANTÔNIO, 410, CENTRO, MIRABELA
+    </p>
+
+  </div>
+
+  <div class="info-block">
+
+    <h3>📞 Telefone</h3>
+
+    <p id="businessPhone">
+      +55 38 99940 6585
+    </p>
+
+  </div>
+
+  <div class="info-block">
+
+    <h3>🕒 Horário de funcionamento</h3>
+
+    <div
+      class="hours"
+      id="businessHours"
+    >
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+
+  <div>Agendamento online</div>
+
+  <div>CF BARBEARIA</div>
+
+</footer>
+
+
+<!-- =========================================================
+     MODAL DE AGENDAMENTO
+========================================================= -->
+
+<div
+  class="modal-backdrop"
+  id="bookingModal"
+>
+
+  <div class="modal">
+
+    <div id="bookingForm">
+
+      <div class="modal-header">
+
+        <h2>Reservar horário</h2>
+
+        <button
+          class="close"
+          onclick="closeBooking()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div
+        id="bookingMessage"
+        class="booking-message"
+      >
+      </div>
+
+
+      <!-- NOME -->
+
+      <div class="field">
+
+        <label>
+          Nome completo
+        </label>
+
+        <input
+          type="text"
+          id="clientName"
+          placeholder="Digite seu nome"
+          autocomplete="name"
+        >
+
+      </div>
+
+
+      <!-- TELEFONE -->
+
+      <div class="field">
+
+        <label>
+          Telefone
+        </label>
+
+        <input
+          type="tel"
+          id="clientPhone"
+          placeholder="(38) 99999-9999"
+          autocomplete="tel"
+          maxlength="15"
+        >
+
+      </div>
+
+
+      <!-- SERVIÇO -->
+
+      <div class="field">
+
+        <label>
+          Serviço
+        </label>
+
+        <select id="serviceSelect">
+
+          <option value="">
+            Selecione um serviço
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- PROFISSIONAL -->
+
+      <div class="field">
+
+        <label>
+          Profissional
+        </label>
+
+        <select id="staffSelect">
+
+          <option value="">
+            Selecione um profissional
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- DATA -->
+
+      <div class="field">
+
+        <label>
+          Data
+        </label>
+
+        <input
+          type="date"
+          id="dateSelect"
+        >
+
+      </div>
+
+
+      <!-- HORÁRIO -->
+
+      <div class="field">
+
+        <label>
+          Horário
+        </label>
+
+        <div
+          class="times"
+          id="timeList"
+        >
+        </div>
+
+      </div>
+
+
+      <button
+        class="confirm"
+        id="confirmBooking"
+        onclick="confirmBooking()"
+        disabled
+      >
+        Confirmar agendamento
+      </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUCESSO
+    ====================================================== -->
+
+    <div
+      class="success"
+      id="bookingSuccess"
+    >
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+      <h2>
+        Agendamento realizado!
+      </h2>
+
+      <p
+        id="successText"
+        style="color:#666;margin:10px 0 20px"
+      >
+      </p>
+
+      <button
+        class="confirm"
+        onclick="closeBooking()"
+      >
+        Fechar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+/*
+   IMPORTANTE:
+
+   Cole aqui a SUA chave publishable:
+
+   sb_publishable_...
+
+   NÃO coloque aqui uma chave:
+   sb_secret_...
+   service_role
+*/
+
+const SUPABASE_URL =
+  "https://shbyhntkzccsanilhegu.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_T_KXxyAhyDvu8PEEGwoOqA_k9HlI77x";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================================================
+   DADOS DA EMPRESA
+========================================================= */
+
+const BUSINESS = {
+
+  name:"CF BARBEARIA",
+
+  address:"JOÃO ANTÔNIO, 410, CENTRO, MIRABELA",
+
+  phone:"+55 38 99940 6585",
+
+  description:
+    "AQUI CABELO E BARBA É COISA SERIA!!",
+
+  hours:[
+
+    {
+      day:"Domingo",
+      time:"Fechado"
+    },
+
+    {
+      day:"Segunda-feira",
+      time:"09:00–19:00"
+    },
+
+    {
+      day:"Terça-feira",
+      time:"09:00–19:00"
+    },
+
+    {
+      day:"Quarta-feira",
+      time:"09:00–19:00"
+    },
+
+    {
+      day:"Quinta-feira",
+      time:"09:00–19:00"
+    },
+
+    {
+      day:"Sexta-feira",
+      time:"09:00–19:00"
+    },
+
+    {
+      day:"Sábado",
+      time:"09:00–16:00"
+    }
+
+  ]
+
+};
+
+
+/* =========================================================
+   SERVIÇOS
+========================================================= */
+
+const SERVICES = [
+
+  {
+    id:1,
+    name:"CORTE SOCIAL",
+    price:30,
+    duration:30,
+    description:"Corte social masculino."
+  },
+
+  {
+    id:2,
+    name:"CORTE DEGRADE",
+    price:30,
+    duration:30,
+    description:"Corte degradê masculino."
+  },
+
+  {
+    id:3,
+    name:"CORTE SOCIAL + BARBA",
+    price:40,
+    duration:45,
+    description:"Corte social acompanhado de barba."
+  },
+
+  {
+    id:4,
+    name:"CORTE DEGRADE + BARBA",
+    price:45,
+    duration:60,
+    description:"Corte degradê acompanhado de barba."
+  },
+
+  {
+    id:5,
+    name:"BARBA NORMAL",
+    price:15,
+    duration:20,
+    description:"Serviço de barba tradicional."
+  },
+
+  {
+    id:6,
+    name:"BARBOTERAPIA",
+    price:20,
+    duration:30,
+    description:"Serviço de barbearia com barboterapia."
+  },
+
+  {
+    id:7,
+    name:"SOBRANCELHA",
+    price:10,
+    duration:15,
+    description:"Design/ajuste de sobrancelha."
+  },
+
+  {
+    id:8,
+    name:"PEZINHO",
+    price:10,
+    duration:15,
+    description:"Acabamento do pezinho."
+  }
+
+];
+
+
+/* =========================================================
+   PROFISSIONAIS
+========================================================= */
+
+const STAFF = [
+
+  {
+    id:1,
+    name:"ALISSON",
+    image:"assets/alisson.jpg"
+  },
+
+  {
+    id:2,
+    name:"CAIO MENDES",
+    image:"assets/caio-mendes.jpg"
+  }
+
+];
+
+
+/* =========================================================
+   HORÁRIOS
+========================================================= */
+
+const AVAILABLE_TIMES = [
+
+  "09:00",
+  "09:20",
+  "09:40",
+  "10:00",
+  "10:20",
+  "10:40",
+  "11:00",
+  "11:20",
+  "11:40",
+  "12:00",
+  "12:20",
+  "12:40",
+  "13:00",
+  "13:20",
+  "13:40",
+  "14:00",
+  "14:20",
+  "14:40",
+  "15:00",
+  "15:20",
+  "15:40",
+  "16:00",
+  "16:20",
+  "16:40",
+  "17:00",
+  "17:20",
+  "17:40",
+  "18:00",
+  "18:20",
+  "18:40"
+
+];
+
+
+/* =========================================================
+   VARIÁVEIS
+========================================================= */
+
+let showingAll = false;
+
+let selectedTime = null;
+
+let occupiedTimes = [];
+
+
+/* =========================================================
+   RENDERIZAÇÃO DA EMPRESA
+========================================================= */
+
+function renderBusiness(){
+
+  document.title =
+    "Agendamento online | " +
+    BUSINESS.name;
+
+
+  document.getElementById(
+    "businessName"
+  ).textContent =
+    BUSINESS.name;
+
+
+  document.getElementById(
+    "businessAddress"
+  ).textContent =
+    BUSINESS.address;
+
+
+  document.getElementById(
+    "aboutAddress"
+  ).textContent =
+    BUSINESS.address;
+
+
+  document.getElementById(
+    "businessPhone"
+  ).textContent =
+    BUSINESS.phone;
+
+
+  document.getElementById(
+    "businessDescription"
+  ).textContent =
+    BUSINESS.description;
+
+
+  document.getElementById(
+    "businessHours"
+  ).innerHTML =
+
+    BUSINESS.hours.map(h => `
+
+      <div class="hour ${
+        h.time === "Fechado"
+          ? "closed"
+          : ""
+      }">
+
+        <span>
+          ${h.day}
+        </span>
+
+        <span>
+          ${h.time}
+        </span>
+
+      </div>
+
+    `).join("");
+
+
+  updateBusinessStatus();
+
+}
+
+
+/* =========================================================
+   STATUS AUTOMÁTICO
+========================================================= */
+
+function updateBusinessStatus(){
+
+  const now = new Date();
+
+  const day = now.getDay();
+
+  const currentMinutes =
+    now.getHours() * 60 +
+    now.getMinutes();
+
+
+  const schedule =
+    BUSINESS.hours[day];
+
+
+  let isOpen = false;
+
+
+  if(
+    schedule &&
+    schedule.time !== "Fechado"
+  ){
+
+    const parts =
+      schedule.time.split("–");
+
+
+    const start =
+      timeToMinutes(parts[0]);
+
+
+    const end =
+      timeToMinutes(parts[1]);
+
+
+    isOpen =
+      currentMinutes >= start &&
+      currentMinutes < end;
+
+  }
+
+
+  document.getElementById(
+    "businessStatus"
+  ).textContent =
+    isOpen
+      ? "● Aberto"
+      : "● Fechado";
+
+}
+
+
+/* =========================================================
+   CONVERTER HORÁRIO
+========================================================= */
+
+function timeToMinutes(time){
+
+  const [
+    hours,
+    minutes
+  ] = time.split(":").map(Number);
+
+
+  return hours * 60 + minutes;
+
+}
+
+
+/* =========================================================
+   SERVIÇOS
+========================================================= */
+
+function renderServices(){
+
+  const list =
+    document.getElementById(
+      "servicesList"
+    );
+
+
+  const data =
+    showingAll
+      ? SERVICES
+      : SERVICES.slice(0,6);
+
+
+  list.innerHTML =
+    data.map(service => `
+
+      <article
+        class="service"
+        id="service-${service.id}"
+      >
+
+        <div class="service-main">
+
+          <div class="service-name">
+            ${service.name}
+          </div>
+
+          <div class="price">
+            R$
+            ${service.price
+              .toFixed(2)
+              .replace(".",",")}
+          </div>
+
+        </div>
+
+
+        <div class="service-details">
+
+          ${service.description}
+
+          <br>
+
+          <small>
+            Duração aproximada:
+            ${service.duration} minutos
+          </small>
+
+        </div>
+
+
+        <div class="service-footer">
+
+          <button
+            class="details-btn"
+            onclick="toggleDetails(${service.id})"
+          >
+            Mostrar detalhes
+          </button>
+
+
+          <button
+            class="reserve"
+            onclick="openBooking(${service.id})"
+          >
+            Reservar
+          </button>
+
+        </div>
+
+      </article>
+
+    `).join("");
+
+
+  document.getElementById(
+    "moreServices"
+  ).style.display =
+    showingAll
+      ? "none"
+      : "block";
+
+}
+
+
+/* =========================================================
+   PROFISSIONAIS
+========================================================= */
+
+function renderStaff(){
+
+  document.getElementById(
+    "teamList"
+  ).innerHTML =
+
+    STAFF.map(person => `
+
+      <article class="team-card">
+
+        <img
+          class="team-avatar"
+          src="${person.image}"
+          alt="${person.name}"
+          onerror="this.style.display='none'"
+        >
+
+        <h3>
+          ${person.name}
+        </h3>
+
+        <p>
+          Profissional
+        </p>
+
+        <button
+          class="reserve"
+          onclick="openBooking(null,${person.id})"
+        >
+          Reservar agora
+        </button>
+
+      </article>
+
+    `).join("");
+
+}
+
+
+/* =========================================================
+   DETALHES
+========================================================= */
+
+function toggleDetails(id){
+
+  const element =
+    document.getElementById(
+      "service-" + id
+    );
+
+
+  element.classList.toggle("open");
+
+
+  const button =
+    element.querySelector(
+      ".details-btn"
+    );
+
+
+  button.textContent =
+    element.classList.contains("open")
+      ? "Ocultar detalhes"
+      : "Mostrar detalhes";
+
+}
+
+
+/* =========================================================
+   MOSTRAR SERVIÇOS
+========================================================= */
+
+function showAllServices(){
+
+  showingAll = true;
+
+  renderServices();
+
+}
+
+
+/* =========================================================
+   ABRIR AGENDAMENTO
+========================================================= */
+
+function openBooking(
+  serviceId = null,
+  staffId = null
+){
+
+  const modal =
+    document.getElementById(
+      "bookingModal"
+    );
+
+
+  const serviceSelect =
+    document.getElementById(
+      "serviceSelect"
+    );
+
+
+  const staffSelect =
+    document.getElementById(
+      "staffSelect"
+    );
+
+
+  serviceSelect.innerHTML = `
+
+    <option value="">
+      Selecione um serviço
+    </option>
+
+    ${SERVICES.map(s => `
+
+      <option
+        value="${s.id}"
+        ${s.id === serviceId
+          ? "selected"
+          : ""}
+      >
+
+        ${s.name}
+        —
+        R$ ${s.price
+          .toFixed(2)
+          .replace(".",",")}
+
+      </option>
+
+    `).join("")}
+
+  `;
+
+
+  staffSelect.innerHTML = `
+
+    <option value="">
+      Selecione um profissional
+    </option>
+
+    ${STAFF.map(s => `
+
+      <option
+        value="${s.id}"
+        ${s.id === staffId
+          ? "selected"
+          : ""}
+      >
+
+        ${s.name}
+
+      </option>
+
+    `).join("")}
+
+  `;
+
+
+  const today =
+    new Date();
+
+
+  const localDate =
+    new Date(
+      today.getTime()
+      -
+      today.getTimezoneOffset() * 60000
+    )
+    .toISOString()
+    .split("T")[0];
+
+
+  document.getElementById(
+    "dateSelect"
+  ).min = localDate;
+
+
+  document.getElementById(
+    "dateSelect"
+  ).value = "";
+
+
+  document.getElementById(
+    "clientName"
+  ).value = "";
+
+
+  document.getElementById(
+    "clientPhone"
+  ).value = "";
+
+
+  selectedTime = null;
+
+  occupiedTimes = [];
+
+
+  showBookingMessage(
+    "",
+    ""
+  );
+
+
+  renderTimes();
+
+  updateConfirmButton();
+
+
+  document.getElementById(
+    "bookingForm"
+  ).style.display = "block";
+
+
+  document.getElementById(
+    "bookingSuccess"
+  ).classList.remove("show");
+
+
+  modal.classList.add("show");
+
+}
+
+
+/* =========================================================
+   FECHAR AGENDAMENTO
+========================================================= */
+
+function closeBooking(){
+
+  document.getElementById(
+    "bookingModal"
+  ).classList.remove("show");
+
+}
+
+
+/* =========================================================
+   RENDERIZAR HORÁRIOS
+========================================================= */
+
+function renderTimes(){
+
+  document.getElementById(
+    "timeList"
+  ).innerHTML =
+
+    AVAILABLE_TIMES.map(time => {
+
+      const occupied =
+        occupiedTimes.includes(time);
+
+
+      return `
+
+        <button
+          type="button"
+          class="time"
+          ${occupied ? "disabled" : ""}
+          onclick="selectTime('${time}',this)"
+        >
+
+          ${time}
+
+        </button>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   CONSULTAR HORÁRIOS OCUPADOS
+========================================================= */
+
+async function loadOccupiedTimes(){
+
+  const staff =
+    document.getElementById(
+      "staffSelect"
+    ).value;
+
+
+  const date =
+    document.getElementById(
+      "dateSelect"
+    ).value;
+
+
+  selectedTime = null;
+
+
+  if(!staff || !date){
+
+    occupiedTimes = [];
+
+    renderTimes();
+
+    updateConfirmButton();
+
+    return;
+
+  }
+
+
+  showBookingMessage(
+    "Consultando horários disponíveis...",
+    "info"
+  );
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "get_horarios_ocupados",
+    {
+      p_profissional_id:
+        Number(staff),
+
+      p_data:
+        date
+    }
+  );
+
+
+  if(error){
+
+    console.error(
+      "Erro ao consultar horários:",
+      error
+    );
+
+
+    occupiedTimes = [];
+
+    renderTimes();
+
+
+    showBookingMessage(
+      "Não foi possível consultar os horários. Verifique sua conexão.",
+      "error"
+    );
+
+
+    return;
+
+  }
+
+
+  occupiedTimes =
+    (data || []).map(
+      item => item.horario
+    );
+
+
+  renderTimes();
+
+
+  showBookingMessage(
+    "",
+    ""
+  );
+
+
+  updateConfirmButton();
+
+}
+
+
+/* =========================================================
+   SELECIONAR HORÁRIO
+========================================================= */
+
+function selectTime(
+  time,
+  button
+){
+
+  if(button.disabled){
+
+    return;
+
+  }
+
+
+  selectedTime = time;
+
+
+  document
+    .querySelectorAll(".time")
+    .forEach(el =>
+      el.classList.remove("selected")
+    );
+
+
+  button.classList.add("selected");
+
+
+  updateConfirmButton();
+
+}
+
+
+/* =========================================================
+   BOTÃO CONFIRMAR
+========================================================= */
+
+function updateConfirmButton(){
+
+  const name =
+    document.getElementById(
+      "clientName"
+    ).value.trim();
+
+
+  const phone =
+    document.getElementById(
+      "clientPhone"
+    ).value.trim();
+
+
+  const service =
+    document.getElementById(
+      "serviceSelect"
+    ).value;
+
+
+  const staff =
+    document.getElementById(
+      "staffSelect"
+    ).value;
+
+
+  const date =
+    document.getElementById(
+      "dateSelect"
+    ).value;
+
+
+  const valid =
+    name &&
+    phone &&
+    service &&
+    staff &&
+    date &&
+    selectedTime;
+
+
+  document.getElementById(
+    "confirmBooking"
+  ).disabled = !valid;
+
+}
+
+
+/* =========================================================
+   MÁSCARA TELEFONE
+========================================================= */
+
+function formatPhone(value){
+
+  value =
+    value.replace(/\D/g,"");
+
+
+  if(value.length > 11){
+
+    value =
+      value.substring(0,11);
+
+  }
+
+
+  if(value.length <= 10){
+
+    return value.replace(
+      /^(\d{2})(\d{4})(\d{0,4}).*/,
+      "($1) $2-$3"
+    );
+
+  }
+
+
+  return value.replace(
+    /^(\d{2})(\d{5})(\d{0,4}).*/,
+    "($1) $2-$3"
+  );
+
+}
+
+
+/* =========================================================
+   MENSAGEM
+========================================================= */
+
+function showBookingMessage(
+  message,
+  type
+){
+
+  const element =
+    document.getElementById(
+      "bookingMessage"
+    );
+
+
+  if(!message){
+
+    element.className =
+      "booking-message";
+
+    element.textContent =
+      "";
+
+    return;
+
+  }
+
+
+  element.className =
+    "booking-message show " +
+    type;
+
+
+  element.textContent =
+    message;
+
+}
+
+
+/* =========================================================
+   CONFIRMAR AGENDAMENTO
+========================================================= */
+
+async function confirmBooking(){
+
+  const button =
+    document.getElementById(
+      "confirmBooking"
+    );
+
+
+  const name =
+    document.getElementById(
+      "clientName"
+    ).value.trim();
+
+
+  const phone =
+    document.getElementById(
+      "clientPhone"
+    ).value.trim();
+
+
+  const serviceId =
+    Number(
+      document.getElementById(
+        "serviceSelect"
+      ).value
+    );
+
+
+  const staffId =
+    Number(
+      document.getElementById(
+        "staffSelect"
+      ).value
+    );
+
+
+  const date =
+    document.getElementById(
+      "dateSelect"
+    ).value;
+
+
+  const time =
+    selectedTime;
+
+
+  if(
+    !name ||
+    !phone ||
+    !serviceId ||
+    !staffId ||
+    !date ||
+    !time
+  ){
+
+    showBookingMessage(
+      "Preencha todos os campos para continuar.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const service =
+    SERVICES.find(
+      s => s.id === serviceId
+    );
+
+
+  const staff =
+    STAFF.find(
+      s => s.id === staffId
+    );
+
+
+  if(!service || !staff){
+
+    showBookingMessage(
+      "Não foi possível identificar o serviço ou profissional.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Salvando agendamento...";
+
+
+  showBookingMessage(
+    "",
+    ""
+  );
+
+
+  try{
+
+    /* =====================================================
+       1. VERIFICAR NOVAMENTE O HORÁRIO
+       ===================================================== */
+
+    const {
+      data: available,
+      error: availabilityError
+    } =
+      await supabaseClient.rpc(
+        "verificar_horario_disponivel",
+        {
+          p_profissional_id:
+            staffId,
+
+          p_data:
+            date,
+
+          p_horario:
+            time
+        }
+      );
+
+
+    if(availabilityError){
+
+      throw availabilityError;
+
+    }
+
+
+    if(!available){
+
+      showBookingMessage(
+        "Esse horário acabou de ser reservado por outra pessoa. Escolha outro horário.",
+        "error"
+      );
+
+
+      await loadOccupiedTimes();
+
+
+      button.disabled = false;
+
+      button.textContent =
+        "Confirmar agendamento";
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       2. CRIAR CLIENTE
+       ===================================================== */
+
+    const {
+      data: client,
+      error: clientError
+    } =
+      await supabaseClient
+        .from("clientes")
+        .insert({
+
+          nome:name,
+
+          telefone:phone
+
+        })
+        .select("id")
+        .single();
+
+
+    if(clientError){
+
+      throw clientError;
+
+    }
+
+
+    /* =====================================================
+       3. CRIAR AGENDAMENTO
+       ===================================================== */
+
+    const {
+      error: appointmentError
+    } =
+      await supabaseClient
+        .from("agendamentos")
+        .insert({
+
+          cliente_id:
+            client.id,
+
+          cliente_nome:
+            name,
+
+          cliente_telefone:
+            phone,
+
+          servico_id:
+            service.id,
+
+          servico_nome:
+            service.name,
+
+          profissional_id:
+            staff.id,
+
+          profissional_nome:
+            staff.name,
+
+          data:
+            date,
+
+          horario:
+            time,
+
+          duracao:
+            service.duration,
+
+          status:
+            "pendente"
+
+        });
+
+
+    if(appointmentError){
+
+      /* =================================================
+         HORÁRIO DUPLICADO
+      ================================================= */
+
+      if(
+        appointmentError.code ===
+        "23505"
+      ){
+
+        showBookingMessage(
+          "Esse horário acabou de ser reservado. Escolha outro horário.",
+          "error"
+        );
+
+
+        await loadOccupiedTimes();
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Confirmar agendamento";
+
+        return;
+
+      }
+
+
+      throw appointmentError;
+
+    }
+
+
+    /* =====================================================
+       4. SUCESSO
+       ===================================================== */
+
+    document.getElementById(
+      "successText"
+    ).textContent =
+
+      `${service.name} com ${staff.name}, no dia ${formatDate(date)} às ${time}. Cliente: ${name}.`;
+
+
+    document.getElementById(
+      "bookingForm"
+    ).style.display =
+      "none";
+
+
+    document.getElementById(
+      "bookingSuccess"
+    ).classList.add("show");
+
+
+  }catch(error){
+
+    console.error(
+      "Erro ao salvar agendamento:",
+      error
+    );
+
+
+    showBookingMessage(
+      "Não foi possível realizar o agendamento. Tente novamente.",
+      "error"
+    );
+
+
+    button.disabled = false;
+
+    button.textContent =
+      "Confirmar agendamento";
+
+  }
+
+}
+
+
+/* =========================================================
+   FORMATAR DATA
+========================================================= */
+
+function formatDate(date){
+
+  const [
+    year,
+    month,
+    day
+  ] =
+    date.split("-");
+
+
+  return `${day}/${month}/${year}`;
+
+}
+
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
+
+function goTo(
+  id,
+  button
+){
+
+  document
+    .getElementById(id)
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+
+  document
+    .querySelectorAll(".nav button")
+    .forEach(b =>
+      b.classList.remove("active")
+    );
+
+
+  button.classList.add("active");
+
+}
+
+
+/* =========================================================
+   GOOGLE MAPS
+========================================================= */
+
+function openDirections(){
+
+  const address =
+    encodeURIComponent(
+      BUSINESS.address
+    );
+
+
+  window.open(
+
+    "https://www.google.com/maps/search/?api=1&query="
+    +
+    address,
+
+    "_blank"
+
+  );
+
+}
+
+
+/* =========================================================
+   COMPARTILHAR
+========================================================= */
+
+async function sharePage(){
+
+  const data = {
+
+    title:
+      BUSINESS.name,
+
+    text:
+      "Agendamento online - " +
+      BUSINESS.name,
+
+    url:
+      window.location.href
+
+  };
+
+
+  if(navigator.share){
+
+    try{
+
+      await navigator.share(
+        data
+      );
+
+    }catch(e){}
+
+  }else{
+
+    try{
+
+      await navigator.clipboard.writeText(
+        window.location.href
+      );
+
+
+      alert(
+        "Link copiado!"
+      );
+
+    }catch(e){
+
+      alert(
+        "Copie o endereço desta página para compartilhar."
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   EVENTOS
+========================================================= */
+
+document
+  .getElementById("serviceSelect")
+  .addEventListener(
+    "change",
+    updateConfirmButton
+  );
+
+
+document
+  .getElementById("staffSelect")
+  .addEventListener(
+    "change",
+    async function(){
+
+      selectedTime = null;
+
+      await loadOccupiedTimes();
+
+      updateConfirmButton();
+
+    }
+  );
+
+
+document
+  .getElementById("dateSelect")
+  .addEventListener(
+    "change",
+    async function(){
+
+      await loadOccupiedTimes();
+
+      updateConfirmButton();
+
+    }
+  );
+
+
+document
+  .getElementById("clientName")
+  .addEventListener(
+    "input",
+    updateConfirmButton
+  );
+
+
+document
+  .getElementById("clientPhone")
+  .addEventListener(
+    "input",
+    function(){
+
+      this.value =
+        formatPhone(
+          this.value
+        );
+
+      updateConfirmButton();
+
+    }
+  );
+
+
+document
+  .getElementById("bookingModal")
+  .addEventListener(
+    "click",
+    function(e){
+
+      if(e.target === this){
+
+        closeBooking();
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+renderBusiness();
+
+renderServices();
+
+renderStaff();
+
+
+/*
+   Atualiza o status da barbearia
+   a cada minuto.
+*/
+
+setInterval(
+  updateBusinessStatus,
+  60000
+);
+
+</script>
+
+</body>
+</html>
